@@ -12,6 +12,7 @@ namespace AutoToolSelect
     public class ModConfig
     {
         public SButton ActivationKey { get; set; } = SButton.LeftControl;
+        public bool HoeSelect { get; set; } = true;
     }
 
     class AutoToolSelectMod : Mod
@@ -36,7 +37,7 @@ namespace AutoToolSelect
         {
             if (e.Button == this.Config.ActivationKey)
             {
-                Helper.Events.Input.CursorMoved -= this.GameTicked;
+                Helper.Events.GameLoop.UpdateTicked -= this.GameTicked;
             }
         }
         
@@ -57,7 +58,7 @@ namespace AutoToolSelect
                         }
                     }
                 }
-                if (Game1.player.currentLocation.doesTileHaveProperty((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "Diggable", "Back") != null)
+                if (Game1.player.currentLocation.doesTileHaveProperty((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "Diggable", "Back") != null && this.Config.HoeSelect)
                 {
 
                     for (int j = 0; j < 12; j++)
