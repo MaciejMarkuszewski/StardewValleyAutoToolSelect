@@ -61,8 +61,18 @@ namespace AutoToolSelect
         {
             if (Context.IsWorldReady)
             {
-                Vector2 ToolLocationVector = new Vector2((int)Game1.player.GetToolLocation(false).X / Game1.tileSize, (int)Game1.player.GetToolLocation(false).Y / Game1.tileSize);
-                Point ToolLocationPoint = new Point(((int)Game1.player.GetToolLocation(false).X / Game1.tileSize) * Game1.tileSize + Game1.tileSize / 2, ((int)Game1.player.GetToolLocation(false).Y / Game1.tileSize) * Game1.tileSize + Game1.tileSize / 2);
+                Vector2 ToolLocationVector;
+                Point ToolLocationPoint;
+                if (Game1.player.isRidingHorse())
+                {
+                    ToolLocationVector = Game1.currentCursorTile;
+                    ToolLocationPoint = new Point(((int)Game1.currentCursorTile.X) * Game1.tileSize + Game1.tileSize / 2, ((int)Game1.currentCursorTile.X) * Game1.tileSize + Game1.tileSize / 2);
+                }
+                else
+                {
+                    ToolLocationVector = new Vector2((int)Game1.player.GetToolLocation(false).X / Game1.tileSize, (int)Game1.player.GetToolLocation(false).Y / Game1.tileSize);
+                    ToolLocationPoint = new Point(((int)Game1.player.GetToolLocation(false).X / Game1.tileSize) * Game1.tileSize + Game1.tileSize / 2, ((int)Game1.player.GetToolLocation(false).Y / Game1.tileSize) * Game1.tileSize + Game1.tileSize / 2);
+                }
                 if (Game1.player.currentLocation is Farm || Game1.player.currentLocation.Name.Equals("Greenhouse"))
                 {
                     if (this.Config.IfNoneToolChooseWeapon)
@@ -100,7 +110,14 @@ namespace AutoToolSelect
                     {
                         if (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] is HoeDirt)
                         {
-                            SetTool(typeof(WateringCan));
+                            if((Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop != null && (((Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop.harvestMethod.Value==1 && (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop.fullyGrown.Value) || (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop.dead.Value))
+                            {
+                                SetScythe();
+                            }
+                            else
+                            {
+                                SetTool(typeof(WateringCan));
+                            }
                         }
                         if (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] is GiantCrop)
                         {
