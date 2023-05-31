@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using StardewValley.TerrainFeatures;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley.Menus;
+using StardewValley.Monsters;
 
 namespace AutoToolSelect
 {
@@ -144,9 +145,9 @@ namespace AutoToolSelect
 
         private void PostRenderHud(object sender, EventArgs e)
         {
-            foreach(IClickableMenu menu in Game1.onScreenMenus)
+            foreach (IClickableMenu menu in Game1.onScreenMenus)
             {
-                if(menu is Toolbar && Game1.activeClickableMenu == null && (togglemod || buttonPressed))
+                if (menu is Toolbar && Game1.activeClickableMenu == null && (togglemod || buttonPressed))
                 {
                     Vector2 position;
                     if (Game1.options.pinToolbarToggle || (double) Game1.GlobalToLocal(Game1.viewport,new Vector2((float) Game1.player.GetBoundingBox().Center.X, (float) Game1.player.GetBoundingBox().Center.Y)).Y <= (double) (Game1.viewport.Height / 2 +64))
@@ -231,7 +232,7 @@ namespace AutoToolSelect
                             {
                                 SetTool(typeof(Pickaxe));
                             }
-                            else if(Game1.player.currentLocation is Farm || Game1.player.currentLocation.IsGreenhouse)
+                            else if (Game1.player.currentLocation is Farm || Game1.player.currentLocation.IsGreenhouse)
                             {
                                 SetTool(typeof(WateringCan));
                             }
@@ -250,7 +251,7 @@ namespace AutoToolSelect
                         SetScythe();
                     }
                 }
-                if(Game1.player.currentLocation is Farm)
+                if (Game1.player.currentLocation is Farm)
                 {
                     for (int i = (Game1.player.currentLocation as Farm).resourceClumps.Count - 1; i >= 0; --i)
                     {
@@ -274,7 +275,7 @@ namespace AutoToolSelect
                             }
                         }
                     }
-                    foreach(FarmAnimal animal in (Game1.player.currentLocation as Farm).animals.Values)
+                    foreach (FarmAnimal animal in (Game1.player.currentLocation as Farm).animals.Values)
                     {
                         if (animal.GetHarvestBoundingBox().Intersects(ToolRect) && animal.toolUsedForHarvest.Equals("Shears") && animal.currentProduce.Value > 0 && animal.age.Value >= animal.ageWhenMature.Value)
                         {
@@ -286,7 +287,7 @@ namespace AutoToolSelect
                         }
                     }
                 }
-                if(Game1.player.currentLocation is AnimalHouse)
+                if (Game1.player.currentLocation is AnimalHouse)
                 {
                     foreach (FarmAnimal animal in (Game1.player.currentLocation as AnimalHouse).animals.Values)
                     {
@@ -321,6 +322,16 @@ namespace AutoToolSelect
                         if ((Game1.player.currentLocation as MineShaft).resourceClumps[i].getBoundingBox((Game1.player.currentLocation as MineShaft).resourceClumps[i].tile.Value).Contains(ToolLocationPoint))
                         {
                             SetTool(typeof(Pickaxe));
+                        }
+                    }
+                    foreach (Character monster in (Game1.player.currentLocation as MineShaft).characters)
+                    {
+                        if (monster is Monster)
+                        {
+                            if ((monster is LavaCrab || monster is RockCrab) && !monster.isMoving() && ToolRect.Contains(monster.Position))
+                            {
+                                SetTool(typeof(Pickaxe));
+                            }
                         }
                     }
                 }
@@ -361,7 +372,7 @@ namespace AutoToolSelect
 
         private static void SetWeapon()
         {
-            if(Game1.player.currentLocation is Farm || Game1.player.currentLocation.IsGreenhouse)
+            if (Game1.player.currentLocation is Farm || Game1.player.currentLocation.IsGreenhouse)
             {
                 SetScythe();
                 return;
