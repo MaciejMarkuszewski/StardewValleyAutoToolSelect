@@ -191,11 +191,11 @@ namespace AutoToolSelect
                 {
                     SetTool(typeof(FishingRod));
                 }
-                if ((Game1.player.currentLocation is Farm || Game1.player.currentLocation.IsGreenhouse || (Game1.player.currentLocation is VolcanoDungeon && !(Game1.player.currentLocation as VolcanoDungeon).IsCooledLava((int)ToolLocationVector.X,(int)ToolLocationVector.Y))) && (Game1.player.currentLocation.getTileIndexAt((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "Buildings") == 1938 || Game1.player.currentLocation.doesTileHaveProperty((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "Water", "Back") != null || Game1.player.currentLocation.doesTileHaveProperty((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "WaterSource", "Back") != null || Game1.player.currentLocation is BuildableGameLocation && (Game1.player.currentLocation as BuildableGameLocation).getBuildingAt(ToolLocationVector) != null && ((Game1.player.currentLocation as BuildableGameLocation).getBuildingAt(ToolLocationVector).buildingType.Equals("Well") && (Game1.player.currentLocation as BuildableGameLocation).getBuildingAt(ToolLocationVector).daysOfConstructionLeft.Value <= 0)))
+                if ((Game1.player.currentLocation is Farm || Game1.player.currentLocation.IsGreenhouse || (Game1.player.currentLocation is VolcanoDungeon && !(Game1.player.currentLocation as VolcanoDungeon).IsCooledLava((int)ToolLocationVector.X,(int)ToolLocationVector.Y))) && (Game1.player.currentLocation.doesTileHaveProperty((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "Water", "Back") != null || Game1.player.currentLocation.doesTileHaveProperty((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "WaterSource", "Back") != null || Game1.player.currentLocation.IsBuildableLocation() && (Game1.player.currentLocation).getBuildingAt(ToolLocationVector) != null && ((Game1.player.currentLocation.getBuildingAt(ToolLocationVector).buildingType.Equals("Well") && Game1.player.currentLocation.getBuildingAt(ToolLocationVector).daysOfConstructionLeft.Value <= 0) || Game1.player.currentLocation.getBuildingAt(ToolLocationVector).buildingType.Equals("Pet Bowl"))))
                 {
                     SetTool(typeof(WateringCan));
                 }
-                if (PanRect.Contains(ToolLocationPoint) && (double)Utility.distance((float)Game1.player.getStandingX(), (float)PanRect.Center.X, (float)Game1.player.getStandingY(), (float)PanRect.Center.Y) <= 192.0)
+                if (PanRect.Contains(ToolLocationPoint) && (double)Utility.distance((float)Game1.player.StandingPixel.X, (float)PanRect.Center.X, (float)Game1.player.StandingPixel.Y, (float)PanRect.Center.Y) <= 192.0)
                 {
                     SetTool(typeof(Pan));
                 }
@@ -222,7 +222,7 @@ namespace AutoToolSelect
                 {
                     if (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] is HoeDirt)
                     {
-                        if ((Game1.player.currentLocation is Farm || Game1.player.currentLocation.IsGreenhouse) && (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop != null && (((Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop.harvestMethod.Value==1 && (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop.fullyGrown.Value) || (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop.dead.Value))
+                        if ((Game1.player.currentLocation is Farm || Game1.player.currentLocation.IsGreenhouse) && (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop != null && (((Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop.GetHarvestMethod() == StardewValley.GameData.Crops.HarvestMethod.Scythe && (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop.fullyGrown.Value) || (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] as HoeDirt).crop.dead.Value))
                         {
                             SetScythe();
                         }
@@ -251,74 +251,40 @@ namespace AutoToolSelect
                         SetWeapon();
                     }
                 }
-                if (Game1.player.currentLocation is Farm)
+                foreach (FarmAnimal animal in Game1.player.currentLocation.animals.Values)
                 {
-                    foreach (FarmAnimal animal in (Game1.player.currentLocation as Farm).animals.Values)
+                    if (animal.GetHarvestBoundingBox().Intersects(ToolRect) && animal.CanGetProduceWithTool(new Shears()) && animal.currentProduce.Value != null && animal.isAdult())
                     {
-                        if (animal.GetHarvestBoundingBox().Intersects(ToolRect) && animal.toolUsedForHarvest.Equals("Shears") && animal.currentProduce.Value > 0 && animal.age.Value >= animal.ageWhenMature.Value)
-                        {
-                            SetTool(typeof(Shears));
-                        }
-                        if (animal.GetHarvestBoundingBox().Intersects(ToolRect) && animal.toolUsedForHarvest.Equals("Milk Pail") && animal.currentProduce.Value > 0 && animal.age.Value >= animal.ageWhenMature.Value)
-                        {
-                            SetTool(typeof(MilkPail));
-                        }
+                        SetShears();
+                    }
+                    if (animal.GetHarvestBoundingBox().Intersects(ToolRect) && animal.CanGetProduceWithTool(new MilkPail()) && animal.currentProduce.Value != null && animal.isAdult())
+                    {
+                        SetMilkPail();
                     }
                 }
-                if (Game1.player.currentLocation is AnimalHouse)
+                for (int i = Game1.player.currentLocation.resourceClumps.Count - 1; i >= 0; --i)
                 {
-                    foreach (FarmAnimal animal in (Game1.player.currentLocation as AnimalHouse).animals.Values)
+                    if (Game1.player.currentLocation.resourceClumps[i].getBoundingBox().Contains(ToolLocationPoint))
                     {
-                        if (animal.GetHarvestBoundingBox().Intersects(ToolRect) && animal.toolUsedForHarvest.Equals("Shears") && animal.currentProduce.Value > 0 && animal.age.Value >= animal.ageWhenMature.Value)
-                        {
-                            SetTool(typeof(Shears));
-                        }
-                        if (animal.GetHarvestBoundingBox().Intersects(ToolRect) && animal.toolUsedForHarvest.Equals("Milk Pail") && animal.currentProduce.Value > 0 && animal.age.Value >= animal.ageWhenMature.Value)
-                        {
-                            SetTool(typeof(MilkPail));
-                        }
-                    }
-                }
-                if (Game1.player.currentLocation is Woods)
-                {
-                    for (int i = (Game1.player.currentLocation as Woods).stumps.Count - 1; i >= 0; --i)
-                    {
-                        if ((Game1.player.currentLocation as Woods).stumps[i].getBoundingBox((Game1.player.currentLocation as Woods).stumps[i].tile.Value).Contains(ToolLocationPoint))
+                        if (Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 600)
                         {
                             SetTool(typeof(Axe), 1);
                         }
-                    }
-                }
-                if (Game1.player.currentLocation is Forest && (Game1.player.currentLocation as Forest).log != null && (Game1.player.currentLocation as Forest).log.getBoundingBox((Game1.player.currentLocation as Forest).log.tile.Value).Contains(ToolLocationPoint))
-                {
-                    SetTool(typeof(Axe), 2);
-                }
-                if (Game1.player.currentLocation is Farm || Game1.player.currentLocation is MineShaft || Game1.player.currentLocation is IslandWest)
-                {
-                    for (int i = Game1.player.currentLocation.resourceClumps.Count - 1; i >= 0; --i)
-                    {
-                        if (Game1.player.currentLocation.resourceClumps[i].getBoundingBox(Game1.player.currentLocation.resourceClumps[i].tile.Value).Contains(ToolLocationPoint))
+                        if (Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 602)
                         {
-                            if (Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 600)
-                            {
-                                SetTool(typeof(Axe), 1);
-                            }
-                            if (Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 602)
-                            {
-                                SetTool(typeof(Axe), 2);
-                            }
-                            if (Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 622)
-                            {
-                                SetTool(typeof(Pickaxe), 3);
-                            }
-                            if (Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 672)
-                            {
-                                SetTool(typeof(Pickaxe), 2);
-                            }
-                            if (Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 752 || Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 754 || Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 756 || Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 758)
-                            {
-                                SetTool(typeof(Pickaxe));
-                            }
+                            SetTool(typeof(Axe), 2);
+                        }
+                        if (Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 148 || Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 622)
+                        {
+                            SetTool(typeof(Pickaxe), 3);
+                        }
+                        if (Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 672)
+                        {
+                            SetTool(typeof(Pickaxe), 2);
+                        }
+                        if (Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 752 || Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 754 || Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 756 || Game1.player.currentLocation.resourceClumps[i].parentSheetIndex.Value == 758)
+                        {
+                            SetTool(typeof(Pickaxe));
                         }
                     }
                 }
@@ -328,7 +294,7 @@ namespace AutoToolSelect
                     {
                         if (monster is Monster)
                         {
-                            if ((monster is LavaCrab || monster is RockCrab) && !monster.Name.Equals("Stick Bug") && !monster.isMoving() && ToolRect.Contains(monster.Position))
+                            if (monster is RockCrab && !monster.Name.Equals("Stick Bug") && !monster.isMoving() && ToolRect.Contains(monster.Position))
                             {
                                 SetTool(typeof(Pickaxe));
                             }
@@ -353,6 +319,29 @@ namespace AutoToolSelect
                 }
             }
         }
+        private static void SetShears()
+        {
+            for (int i = 0; i < 12; i++)
+            {
+                if (Game1.player.Items[i] != null && Game1.player.Items[i].Name.Contains("Shears"))
+                {
+                    Game1.player.CurrentToolIndex = i;
+                    return;
+                }
+            }
+        }
+        private static void SetMilkPail ()
+        {
+            for (int i = 0; i < 12; i++)
+            {
+                if (Game1.player.Items[i] != null && Game1.player.Items[i].Name.Contains("Milk Pail"))
+                {
+                    Game1.player.CurrentToolIndex = i;
+                    return;
+                }
+            }
+        }
+
 
         private static void SetScythe()
         {
