@@ -112,7 +112,7 @@ namespace AutoToolSelect
             );
         }
 
-            private void ButtonPressed(object sender, ButtonPressedEventArgs e)
+        private void ButtonPressed(object sender, ButtonPressedEventArgs e)
         {
             if (e.Button == this.Config.ActivationKey && !togglemod)
             {
@@ -150,7 +150,7 @@ namespace AutoToolSelect
                 if (menu is Toolbar && Game1.activeClickableMenu == null && (togglemod || buttonPressed))
                 {
                     Vector2 position;
-                    if (Game1.options.pinToolbarToggle || (double) Game1.GlobalToLocal(Game1.viewport,new Vector2((float) Game1.player.GetBoundingBox().Center.X, (float) Game1.player.GetBoundingBox().Center.Y)).Y <= (double) (Game1.viewport.Height / 2 +64))
+                    if (Game1.options.pinToolbarToggle || (double)Game1.GlobalToLocal(Game1.viewport, new Vector2((float)Game1.player.GetBoundingBox().Center.X, (float)Game1.player.GetBoundingBox().Center.Y)).Y <= (double)(Game1.viewport.Height / 2 + 64))
                     {
                         position = new Vector2((float)(Game1.uiViewport.Width / 2 - 384 + Game1.player.CurrentToolIndex * 64), (float)(Game1.uiViewport.Height - Utility.makeSafeMarginY(8) - 80));
                     }
@@ -162,7 +162,7 @@ namespace AutoToolSelect
                 }
             }
         }
-        
+
         private void GameTicked(object sender, EventArgs e)
         {
             if (Context.IsWorldReady && Context.CanPlayerMove)
@@ -176,9 +176,9 @@ namespace AutoToolSelect
                 {
                     ToolLocationVector = new Vector2((int)Game1.player.GetToolLocation().X / Game1.tileSize, (int)Game1.player.GetToolLocation().Y / Game1.tileSize);
                 }
-                Point ToolLocationPoint = new (((int)ToolLocationVector.X) * Game1.tileSize + Game1.tileSize / 2, ((int)ToolLocationVector.Y) * Game1.tileSize + Game1.tileSize / 2);
-                Rectangle ToolRect = new (((int)ToolLocationVector.X) * Game1.tileSize, ((int)ToolLocationVector.Y) * Game1.tileSize, Game1.tileSize, Game1.tileSize);
-                Rectangle PanRect = new (Game1.player.currentLocation.orePanPoint.X * 64 - 64, Game1.player.currentLocation.orePanPoint.Y * 64 - 64, 256, 256);
+                Point ToolLocationPoint = new(((int)ToolLocationVector.X) * Game1.tileSize + Game1.tileSize / 2, ((int)ToolLocationVector.Y) * Game1.tileSize + Game1.tileSize / 2);
+                Rectangle ToolRect = new(((int)ToolLocationVector.X) * Game1.tileSize, ((int)ToolLocationVector.Y) * Game1.tileSize, Game1.tileSize, Game1.tileSize);
+                Rectangle PanRect = new(Game1.player.currentLocation.orePanPoint.X * 64 - 64, Game1.player.currentLocation.orePanPoint.Y * 64 - 64, 256, 256);
                 if (this.Config.IfNoneToolChooseWeapon)
                 {
                     SetWeapon();
@@ -191,7 +191,7 @@ namespace AutoToolSelect
                 {
                     SetTool(typeof(FishingRod));
                 }
-                if ((Game1.player.currentLocation is Farm || Game1.player.currentLocation.IsGreenhouse || (Game1.player.currentLocation is VolcanoDungeon && !(Game1.player.currentLocation as VolcanoDungeon).IsCooledLava((int)ToolLocationVector.X,(int)ToolLocationVector.Y))) && (Game1.player.currentLocation.doesTileHaveProperty((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "Water", "Back") != null || Game1.player.currentLocation.doesTileHaveProperty((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "WaterSource", "Back") != null || Game1.player.currentLocation.IsBuildableLocation() && (Game1.player.currentLocation).getBuildingAt(ToolLocationVector) != null && ((Game1.player.currentLocation.getBuildingAt(ToolLocationVector).buildingType.Equals("Well") && Game1.player.currentLocation.getBuildingAt(ToolLocationVector).daysOfConstructionLeft.Value <= 0) || Game1.player.currentLocation.getBuildingAt(ToolLocationVector).buildingType.Equals("Pet Bowl"))))
+                if ((Game1.player.currentLocation is Farm || Game1.player.currentLocation.IsGreenhouse || (Game1.player.currentLocation is VolcanoDungeon && !(Game1.player.currentLocation as VolcanoDungeon).IsCooledLava((int)ToolLocationVector.X, (int)ToolLocationVector.Y))) && (Game1.player.currentLocation.doesTileHaveProperty((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "Water", "Back") != null || Game1.player.currentLocation.doesTileHaveProperty((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "WaterSource", "Back") != null || Game1.player.currentLocation.IsBuildableLocation() && (Game1.player.currentLocation).getBuildingAt(ToolLocationVector) != null && ((Game1.player.currentLocation.getBuildingAt(ToolLocationVector).buildingType.Equals("Well") && Game1.player.currentLocation.getBuildingAt(ToolLocationVector).daysOfConstructionLeft.Value <= 0) || Game1.player.currentLocation.getBuildingAt(ToolLocationVector).buildingType.Equals("Pet Bowl"))))
                 {
                     SetTool(typeof(WateringCan));
                 }
@@ -201,7 +201,7 @@ namespace AutoToolSelect
                 }
                 if (Game1.player.currentLocation.objects.ContainsKey(ToolLocationVector))
                 {
-                    if (Game1.player.currentLocation.objects[ToolLocationVector].name.Equals("Artifact Spot"))
+                    if (Game1.player.currentLocation.objects[ToolLocationVector].name.Equals("Artifact Spot") || Game1.player.currentLocation.objects[ToolLocationVector].name.Equals("Seed Spot"))
                     {
                         SetTool(typeof(Hoe));
                     }
@@ -244,7 +244,14 @@ namespace AutoToolSelect
                     }
                     if (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] is Tree)
                     {
-                        SetTool(typeof(Axe));
+                        if (Game1.player.currentLocation.getObjectAtTile((int)ToolLocationVector.X, (int)ToolLocationVector.Y) != null && Game1.player.currentLocation.getObjectAtTile((int)ToolLocationVector.X, (int)ToolLocationVector.Y).IsTapper())
+                        {
+                            SetScythe();
+                        }
+                        else
+                        {
+                            SetTool(typeof(Axe));
+                        }
                     }
                     if (Game1.player.currentLocation.terrainFeatures[ToolLocationVector] is Grass)
                     {
@@ -307,12 +314,12 @@ namespace AutoToolSelect
                 }
             }
         }
-        
+
         private static void SetTool(Type t, int Level = 0)
         {
             for (int i = 0; i < 12; i++)
             {
-                if (Game1.player.Items[i]!=null && Game1.player.Items[i].GetType() == t && (Game1.player.Items[i] as Tool).UpgradeLevel>=Level)
+                if (Game1.player.Items[i] != null && Game1.player.Items[i].GetType() == t && (Game1.player.Items[i] as Tool).UpgradeLevel >= Level)
                 {
                     Game1.player.CurrentToolIndex = i;
                     return;
@@ -330,7 +337,7 @@ namespace AutoToolSelect
                 }
             }
         }
-        private static void SetMilkPail ()
+        private static void SetMilkPail()
         {
             for (int i = 0; i < 12; i++)
             {
@@ -377,7 +384,6 @@ namespace AutoToolSelect
                     Game1.player.CurrentToolIndex = i;
                     return;
                 }
-                    
             }
             for (int i = 0; i < 12; i++)
             {
