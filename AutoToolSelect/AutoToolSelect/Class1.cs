@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley.Menus;
 using StardewValley.Monsters;
 using System.Collections.Generic;
+using StardewValley.Objects;
 
 namespace AutoToolSelect
 {
@@ -189,7 +190,7 @@ namespace AutoToolSelect
                 }
                 Point ToolLocationPoint = new(((int)ToolLocationVector.X) * Game1.tileSize + Game1.tileSize / 2, ((int)ToolLocationVector.Y) * Game1.tileSize + Game1.tileSize / 2);
                 Rectangle ToolRect = new(((int)ToolLocationVector.X) * Game1.tileSize, ((int)ToolLocationVector.Y) * Game1.tileSize, Game1.tileSize, Game1.tileSize);
-                Rectangle PanRect = new(Game1.player.currentLocation.orePanPoint.X * 64 - 64, Game1.player.currentLocation.orePanPoint.Y * 64 - 64, 256, 256);
+                Rectangle OrePanRect = new(Game1.player.currentLocation.orePanPoint.X * 64 - 64, Game1.player.currentLocation.orePanPoint.Y * 64 - 64, 256, 256);
                 if (this.Config.IfNoneToolChooseWeapon)
                 {
                     SetWeapon(range);
@@ -210,12 +211,16 @@ namespace AutoToolSelect
                 {
                     SetTool(typeof(WateringCan), range);
                 }
-                if (PanRect.Contains(ToolLocationPoint) && (double)Utility.distance((float)Game1.player.StandingPixel.X, (float)PanRect.Center.X, (float)Game1.player.StandingPixel.Y, (float)PanRect.Center.Y) <= 192.0)
+                if (Game1.player.currentLocation.doesTileHaveProperty((int)ToolLocationVector.X, (int)ToolLocationVector.Y, "Water", "Back") != null && ((OrePanRect.Contains(ToolLocationPoint) && Utility.distance((float)Game1.player.StandingPixel.X, (float)OrePanRect.Center.X, (float)Game1.player.StandingPixel.Y, (float)OrePanRect.Center.Y) <= 256f) || Game1.player.GetBoundingBox().Intersects(OrePanRect)))
                 {
                     SetTool(typeof(Pan), range);
                 }
                 if (Game1.player.currentLocation.objects.ContainsKey(ToolLocationVector))
                 {
+                    if (Game1.player.currentLocation.objects[ToolLocationVector].name.Equals("Garden Pot") && !(Game1.player.currentLocation.objects[ToolLocationVector] as IndoorPot).hoeDirt.Value.isWatered())
+                    {
+                        SetTool(typeof(WateringCan), range);
+                    }
                     if (Game1.player.currentLocation.objects[ToolLocationVector].name.Equals("Artifact Spot") || Game1.player.currentLocation.objects[ToolLocationVector].name.Equals("Seed Spot"))
                     {
                         SetTool(typeof(Hoe), range);
